@@ -19,32 +19,40 @@ module constants {
     	prefix tailf;
   	}
 
-  	description "some constant vars";
+  	description 
+  		" this module is a first yang test adding some constant network values
+  		for a customer network. For now DNS,NTP and SYSLOG have been added.";
+
+	revision "2015-03-22" {
+  		description "looks like we can't augment a mandatory field, removed mandatory field";
+  	}
 
   	revision "2015-03-21" {
   		description "initial version";
   	}
 
-  	revision "2015-03-22" {
-  		description "looks like we can't augment a mandatory field";
-  	}
-
   	// we're adding(augment) this container to /customers/customer, part of ncs base module
   	augment "/ncs:customers/ncs:customer" {
 		container constants {
+			// the default yaml keyword 'descriptions' won't show us the info in NCS, using tailf:info for that.
+			tailf:info "Set the usual network constants for a customer";
+
 			leaf syslog {
 				tailf:info "syslog server";
 				type string;
 			}
 
 			leaf-list dns {
+				// every element in a leaf-list should always be unique, no need for unique keyword statement.
 				tailf:info "dns servers";
 				type inet:ipv4-address;
+				max-elements 3;
 			}
 
 			leaf-list ntp {
 				tailf:info "ntp servers";
 				type inet:ipv4-address;
+				max-elements 2;
 			}
 		}
 	}
