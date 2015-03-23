@@ -1,0 +1,67 @@
+// second yang test, this time with choice option.
+// lessons learned:
+// 1: use a container as wrapper around choice, as you can't set tailf:info in choice or case, only leaf or container.
+// 2: use tailf:suppress-echo so password won't be shown.
+// 
+// result:
+// admin@ncs% show | display xpath 
+// /customers/customer[id='t-i.demo']/au:users/user[name='klaas']/password $4$9K0FSNdXmTpAtIYI0d4IDw==
+// /customers/customer[id='t-i.demo']/au:users/user[name='klaas']/permissions/admin
+module allowed_users {
+	namespace "http://telindus.nl/allowed_users";
+	prefix "au";
+
+	import tailf-ncs {
+		prefix ncs;
+	}
+
+	import tailf-common {
+		prefix tailf;
+	}
+
+	description "these users are the allowed local device users";
+
+	// we're adding this to a node customer, any other user should be removed
+	augment "/ncs:customers/ncs:customer" {
+		container users {
+			tailf:info "Allowed local users on device";
+
+			list user {
+				key name;
+				leaf name {
+					tailf:info "Local username";
+					type string;
+				}
+				leaf password {
+					tailf:info "Local password";
+					tailf:suppress-echo "true";
+					type tailf:aes-cfb-128-encrypted-string;
+				}
+				container permissions {
+					tailf:info "User permissions";
+					// user can only have one of the permissions below
+					choice permissions {
+						case admin {
+							leaf admin {
+								tailf:info "admin user"; 
+								type empty; 
+							}
+						}
+						case oper { 
+							leaf oper {
+								tailf:info "operator user"; 
+								type empty; 
+							}
+						}
+						case view {
+							leaf view {
+								tailf:info "view user"; 
+								type empty; 
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
