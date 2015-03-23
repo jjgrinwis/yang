@@ -5,7 +5,7 @@ module constants {
 	prefix "con";
 
 	// we're using ipv4-address type from this yang module
-	import ietf-yang-types {
+	import ietf-inet-types {
 		prefix inet;
 	}
 
@@ -25,6 +25,9 @@ module constants {
   		description "initial version";
   	}
 
+  	revision "2015-03-22" {
+  		description "looks like we can't augment a mandatory field";
+  	}
 
   	// we're adding(augment) this container to /customers/customer, part of ncs base module
   	augment "/ncs:customers/ncs:customer" {
@@ -37,14 +40,11 @@ module constants {
 			leaf-list dns {
 				tailf:info "dns servers";
 				type inet:ipv4-address;
-				min-elements 1;
-				mandatory true;
 			}
 
 			leaf-list ntp {
 				tailf:info "ntp servers";
 				type inet:ipv4-address;
-				min-elements 1;
 			}
 		}
 	}
