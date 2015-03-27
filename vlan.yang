@@ -15,7 +15,7 @@
 //</config>
 //
 // In a next version all elements from device-group should be filled in automatically
-// so we don't have to select the devices, not clue how to do that for now.
+// so we don't have to select the devices, no clue how to do that for now.
 
 module vlan {
 
