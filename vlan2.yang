@@ -1,0 +1,76 @@
+// our first service module using a leafref with current() option
+// this service will add vlan-id and vlan-name to a set of devices from a device-group
+// device-group is pre-provisioned in NCS under /ncs:devices tree:
+//
+// admin@ncs% show juniper | display xml  
+// <config xmlns="http://tail-f.com/ns/config/1.0">
+//  <devices xmlns="http://tail-f.com/ns/ncs">
+//  <device-group>
+//    <name>juniper</name>
+//    <device-name>vsrx04.t-i.demo</device-name>
+//    <device-name>vsrx05.t-i.demo</device-name>
+//    <device-name>vsrx06.t-i.demo</device-name>
+//  </device-group>
+//  </devices>
+//</config>
+
+module vlan {
+
+  namespace "http://com/example/vlan";
+  prefix vlan;
+
+  import tailf-ncs {
+    prefix ncs;
+  }
+
+  import tailf-common {
+    prefix tailf;
+  }
+
+  augment /ncs:services {
+    list vlan {
+      key name;
+
+      uses ncs:service-data;
+      ncs:servicepoint "vlan";
+
+      leaf name {
+        tailf:info "vlan name";
+        type string {
+           length "1..20";
+        }
+      }
+
+      leaf id {
+        tailf:info "vlan id";
+        type int16 {
+           range "1500..1600";
+        }
+      }
+
+      leaf device-group {
+        // let the customer select a device-group
+        tailf:info "select device-group";
+        type leafref {
+          path "/ncs:devices/ncs:device-group/ncs:name";
+        }
+      }
+
+      leaf-list device {
+        type leafref {
+          path "/ncs:devices/ncs:device/ncs:name";
+        }
+      }
+
+      leaf-list devices {
+        tailf:info "devices";
+        type leafref {
+          // some xpath magic.
+          // we're looking for this xpath: /devices/device-group[name='juniper']/device-name.
+          // name becomes current value from ../../vlan/device-group, that's a value we've just selected.
+          path "/ncs:devices/ncs:device-group[ncs:name=current()/../../vlan/device-group]/ncs:device-name";
+        }
+      }
+    }
+  }
+}
