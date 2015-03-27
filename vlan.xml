@@ -7,7 +7,7 @@
           model. In this skeleton the devices are specified in a leaf-list.
           Select all devices in that leaf-list:
       -->
-      <name>{/device}</name>
+      <name>{/devices}</name>
       <config>
         <vlan xmlns="http://tail-f.com/ned/cisco-nx">
           <vlan-list>
