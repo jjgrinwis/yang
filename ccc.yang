@@ -1,0 +1,65 @@
+module ccc {
+  namespace "http://com/example/ccc";
+  prefix ccc;
+
+  import ietf-inet-types {
+    prefix inet;
+  }
+  import tailf-common {
+    prefix tailf;
+  }
+  import tailf-ncs {
+    prefix ncs;
+  }
+  // make sure to modify Makefile and set YANGPATH to include ../../juniper-junos/src/ncsc-out/modules/yang
+  import junos {
+     prefix junos;
+  }
+
+  augment /ncs:services {
+    list ccc {
+      description "This is an RFS skeleton service";
+
+      uses ncs:service-data;
+      ncs:servicepoint "ccc";
+     
+      key id;
+      leaf id {
+        tailf:info "Unique circuit cross connect id";
+        tailf:cli-allow-range;
+        type uint32 {
+          range "512..1024";
+        }
+      }
+
+      // this is a list with just two containers
+      // each container has two leafs:
+      // 1: device
+      // 2: interface
+      list device-if {
+        min-elements 2;
+        max-elements 2;
+        key device;
+
+        leaf device {
+          tailf:info "CCC router";
+          type leafref {
+            path "/ncs:devices/ncs:device/ncs:name";
+          }
+        }
+
+        leaf interface {
+          tailf:info "CCC interface on device";
+          // should point to: /devices/device[name='vsrx01']/config/junos:configuration/interfaces/interface
+          // we're getting the device name from leaf device in this container.
+          type leafref {
+            // admin@ncs% show | display xpath | display prefixes
+            // path "/ncs:devices/ncs:device[ncs:name='vsrx01']/ncs:config/junos:configuration/junos:interfaces/junos:interface/junos:name";
+            // path "deref(../device)/../ncs:config/junos:configuration/junos:interfaces/junos:interface/junos:name";
+            path "/ncs:devices/ncs:device[ncs:name=current()/../device]/ncs:config/junos:configuration/junos:interfaces/junos:interface/junos:name";
+          }
+        }
+      }
+    }    
+  }
+}
